@@ -45,6 +45,7 @@ export const HEARTBEAT_MS = 12 * HOUR;
 // Not two reads closer than this, restarts included.
 const MIN_READ_GAP_MS = 10 * MINUTE;
 const MAX_REFERENCE_GAP_MS = 21 * DAY;
+const RETRY_MS = 30 * MINUTE;
 // requestWidgetRefresh is rate-limited to one call every 10 s by the core.
 const WIDGET_REFRESH_GAP_MS = 10 * 1000;
 
@@ -212,8 +213,8 @@ export class Monitor {
     if (read) {
       this.refreshWidget();
     }
-    if (failure?.rateLimited) {
-      this.retryAfterPause();
+    if (failure) {
+      this.retryAfterFailure(failure);
     }
   }
 
@@ -228,12 +229,17 @@ export class Monitor {
     );
   }
 
-  /** One more cycle when the pause ends, rather than at the next refresh. */
-  retryAfterPause() {
+  /**
+   * One more cycle when the pause ends, or 30 minutes after another failure (a
+   * publication day missed by a passing outage), rather than at the next refresh.
+   */
+  retryAfterFailure(failure) {
     if (!this.timers || this.retryTimer) {
       return;
     }
-    const delay = Math.max(0, this.client.pausedUntil - this.now()) + 1000;
+    const delay = failure.rateLimited
+      ? Math.max(0, this.client.pausedUntil - this.now()) + 1000
+      : RETRY_MS;
     this.retryTimer = setTimeout(() => {
       this.retryTimer = null;
       this.runCycle();

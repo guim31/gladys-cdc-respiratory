@@ -57,6 +57,9 @@ The **wastewater level of a state or a county** is the median of the levels of i
 CDC map does; the integration computes it from the site levels the CDC publishes, so it may rarely differ by one step
 from the CDC map. For flu, the wastewater measures **influenza A**; the hospitals count every flu.
 
+A week counts once at least half of the plants of the week before reported it: until then, the
+device keeps the week before.
+
 The **trend** compares the median wastewater value with the week before: "rising" from +20 % (and at least +0.5),
 "falling" from −1/6 (and at least −0.5), else "stable".
 
@@ -110,7 +113,7 @@ notification, such as "Texas, week ending Oct 31: COVID-19: wastewater low and f
 - **No wastewater value**: no plant of the state reported in the last four weeks (North Dakota and Oklahoma, for
   example, in November 2026). The hospital values still come.
 - The connection status says data.cdc.gov cannot be read: the portal is unreachable; the last values are kept and
-  the integration tries again every 6 hours.
+  the integration tries again 30 minutes later, then every 6 hours.
 - The connection status says data.cdc.gov limits the requests: the integration waits and tries again on its own; add
   an application token if it happens often.
 

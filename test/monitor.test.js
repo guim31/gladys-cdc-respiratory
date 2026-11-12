@@ -383,3 +383,28 @@ test('a reference older than 3 weeks is replaced without firing', async () => {
     await world.cleanup();
   }
 });
+
+test('after a failure other than a 429, one more try 30 minutes later', async (t) => {
+  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
+  const calls = [];
+  let down = true;
+  const fetch = fixtureFetch({ calls, overrides: [[() => down, () => response(503)]] });
+  const world = await createWorld({
+    created: ['VT'],
+    config: { states: ['VT'] },
+    fetch,
+    timers: true,
+  });
+  try {
+    assert.equal(calls.length, 1);
+    assert.equal(world.fake.connectionStatus.connected, false);
+    down = false;
+    world.clock.now += 30 * MINUTE;
+    t.mock.timers.tick(30 * MINUTE);
+    await world.monitor.running;
+    assert.equal(calls.length, 3);
+    assert.equal(world.fake.connectionStatus.connected, true);
+  } finally {
+    await world.cleanup();
+  }
+});

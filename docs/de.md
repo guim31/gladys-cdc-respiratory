@@ -59,6 +59,9 @@ Woche gemeldet haben, wie auf der Karte der CDC; die Integration berechnet ihn a
 veröffentlicht, daher kann er selten um eine Stufe von der Karte abweichen. Bei Grippe misst das Abwasser **Influenza
 A**; die Kliniken zählen jede Grippe.
 
+Eine Woche zählt, sobald mindestens die Hälfte der Anlagen der Vorwoche sie gemeldet hat: Bis dahin behält
+das Gerät die Vorwoche.
+
 Die **Tendenz** vergleicht den Median des Abwassers mit der Vorwoche: „steigend“ ab +20 % (und mindestens +0,5),
 „fallend“ ab −1/6 (und mindestens −0,5), sonst „stabil“.
 
@@ -113,7 +116,7 @@ pro 100.000; Grippe: …“, in der Sprache der Konfiguration, mit jeder Stufe u
 - **Kein Abwasserwert**: Keine Kläranlage des Bundesstaats hat in den letzten vier Wochen gemeldet (North Dakota und
   Oklahoma zum Beispiel im November 2026). Die Klinikwerte kommen trotzdem.
 - Der Verbindungsstatus sagt, dass data.cdc.gov nicht lesbar ist: Das Portal ist nicht erreichbar; die letzten Werte
-  bleiben und die Integration versucht es alle 6 Stunden erneut.
+  bleiben und die Integration versucht es 30 Minuten später erneut, dann alle 6 Stunden.
 - Der Verbindungsstatus sagt, dass data.cdc.gov die Anfragen begrenzt: Die Integration wartet und versucht es selbst
   erneut; füge ein App-Token hinzu, wenn es oft passiert.
 

@@ -12,6 +12,10 @@
 // WVAL read anywhere in that upper category that week (so certainly above the
 // CDC threshold), else the lower one.
 //
+// The latest week of a place is the newest one where at least half of the
+// sites of the week before reported (a week the CDC has only begun to fill is
+// skipped until it fills up).
+//
 // Trend: median WVAL of the latest week against the week before, "rising"
 // from +20 % (and at least +0.5), "falling" from -1/6 (and at least -0.5),
 // else "stable". Computed by the integration, not published by the CDC.
@@ -70,12 +74,15 @@ export function trendOf(previous, current) {
 
 /** The sites of a county: one of the names of `counties_served` matches. */
 function servesCounty(row, key) {
-  return row.counties.split(',').some((name) => countyKey(name) === key);
+  return String(row.counties ?? '')
+    .split(',')
+    .some((name) => countyKey(name) === key);
 }
 
 /**
- * Level and median of a set of site rows of one week. `all` is every row read
- * for that virus and week (every followed state), for the boundary.
+ * Level and median of a set of site rows of one week. `all` is every row of
+ * the state for that virus and week, for the boundary: the level of a place
+ * never depends on the other places followed.
  */
 export function medianLevel(sites, all) {
   const ranked = sites
@@ -122,16 +129,29 @@ export function wastewaterOf(rows, place, virus) {
   if (selected.length === 0) {
     return null;
   }
-  const week = selected.reduce((latest, row) => (row.week > latest ? row.week : latest), '');
+  // Sites with a level, per week.
+  const ranked = new Map();
+  for (const row of selected) {
+    if (rankOf(row.category) !== null) {
+      ranked.set(row.week, (ranked.get(row.week) ?? new Set()).add(row.site));
+    }
+  }
+  // The latest week counts once at least half of the sites of the week before
+  // reported it: a week of which the CDC has published one site out of five
+  // says little (and would fire triggers that the other sites contradict).
+  const weeks = [...ranked.keys()].sort().reverse();
+  const week = weeks.find(
+    (w) => ranked.get(w).size * 2 >= (ranked.get(previousWeek(w))?.size ?? 0),
+  );
+  if (!week) {
+    return null;
+  }
   const before = previousWeek(week);
-  const ofWeek = (w) => rows.filter((row) => row.virus === virus && row.week === w);
+  const ofWeek = (w) => ofState.filter((row) => row.week === w);
   const current = medianLevel(
     selected.filter((row) => row.week === week),
     ofWeek(week),
   );
-  if (!current) {
-    return null;
-  }
   const previous = medianLevel(
     selected.filter((row) => row.week === before),
     ofWeek(before),
@@ -141,7 +161,7 @@ export function wastewaterOf(rows, place, virus) {
     value: round2(current.value),
     trend: trendOf(previous?.value ?? null, current.value),
     week,
-    sites: new Set(selected.filter((row) => row.week === week).map((row) => row.site)).size,
+    sites: ranked.get(week).size,
     scope,
   };
 }

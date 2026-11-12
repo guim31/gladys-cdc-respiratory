@@ -59,6 +59,9 @@ semaine-là, comme sur la carte du CDC ; l'intégration le calcule à partir des
 il peut donc rarement différer d'un cran de la carte. Pour la grippe, les eaux usées mesurent la **grippe A** ; les
 hôpitaux comptent toutes les grippes.
 
+Une semaine compte dès qu'au moins la moitié des stations de la semaine précédente l'ont publiée : d'ici là,
+l'appareil garde la semaine précédente.
+
 La **tendance** compare la valeur médiane des eaux usées à la semaine précédente : « en hausse » dès +20 % (et au
 moins +0,5), « en baisse » dès −1/6 (et au moins −0,5), sinon « stable ».
 
@@ -115,7 +118,7 @@ taux en sortie séparée.
 - **Aucune valeur eaux usées** : aucune station de l'État n'a publié depuis quatre semaines (le Dakota du Nord et
   l'Oklahoma, par exemple, en novembre 2026). Les valeurs hospitalières arrivent quand même.
 - L'état de connexion indique que data.cdc.gov est illisible : le portail est injoignable ; les dernières valeurs
-  restent et l'intégration réessaie toutes les 6 heures.
+  restent et l'intégration réessaie 30 minutes plus tard, puis toutes les 6 heures.
 - L'état de connexion indique que data.cdc.gov limite les requêtes : l'intégration attend et réessaie seule ; ajoutez
   un jeton d'application si cela se répète.
 

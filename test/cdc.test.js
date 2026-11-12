@@ -105,3 +105,25 @@ test('the client: four weeks back, errors and the 429 pause', async () => {
   assert.equal(client.pausedUntil, NOV_12 + 3600 * 1000);
   await assert.rejects(client.hospital(['VT']), /waiting/);
 });
+
+test('a week the CDC has only begun to fill is not the latest yet', () => {
+  const row = (site, week, wval, category) => ({
+    state: 'Vermont',
+    counties: 'Chittenden',
+    site,
+    wval,
+    category,
+    week,
+    virus: 'flu',
+  });
+  const before = ['a', 'b', 'c'].map((site) => row(site, '2026-10-24', 1, 'Very Low'));
+  const partial = [...before, row('c', '2026-10-31', 9, 'Very High')];
+  const result = wastewaterOf(partial, { state: 'VT', key: null }, 'flu');
+  assert.equal(result.week, '2026-10-24');
+  assert.equal(result.level, 1);
+  const filled = [...partial, row('a', '2026-10-31', 2, 'Low')];
+  assert.equal(wastewaterOf(filled, { state: 'VT', key: null }, 'flu').week, '2026-10-31');
+  // A latest week without any level does not hide the one before.
+  const unavailable = [...before, row('a', '2026-10-31', 0, 'Data Unavailable')];
+  assert.equal(wastewaterOf(unavailable, { state: 'VT', key: null }, 'flu').week, '2026-10-24');
+});

@@ -59,6 +59,9 @@ semana, como en el mapa de los CDC; la integración la calcula a partir de los n
 CDC, por lo que rara vez puede diferir un escalón del mapa. Para la gripe, las aguas residuales miden la **influenza
 A**; los hospitales cuentan toda gripe.
 
+Una semana cuenta en cuanto al menos la mitad de las plantas de la semana anterior la han publicado: hasta
+entonces, el dispositivo conserva la semana anterior.
+
 La **tendencia** compara la mediana de las aguas residuales con la semana anterior: «al alza» desde +20 % (y al menos
 +0,5), «a la baja» desde −1/6 (y al menos −0,5); si no, «estable».
 
@@ -115,7 +118,7 @@ separadas.
 - **Ningún valor de aguas residuales**: ninguna planta del estado informó en las cuatro últimas semanas (Dakota del
   Norte y Oklahoma, por ejemplo, en noviembre de 2026). Los valores hospitalarios llegan igualmente.
 - El estado de conexión indica que no se puede leer data.cdc.gov: el portal no responde; se conservan los últimos
-  valores y la integración vuelve a intentarlo cada 6 horas.
+  valores y la integración vuelve a intentarlo 30 minutos después y luego cada 6 horas.
 - El estado de conexión indica que data.cdc.gov limita las solicitudes: la integración espera y vuelve a intentarlo
   sola; añada un token de aplicación si ocurre a menudo.
 
