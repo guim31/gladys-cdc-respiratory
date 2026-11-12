@@ -1,177 +1,1332 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "CDC Respiratory Viruses",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Flu, COVID-19 and RSV in your US state or county: CDC wastewater and hospital levels.",
+    "fr": "Grippe, COVID-19 et VRS dans votre État ou comté américain : eaux usées et hôpitaux (CDC).",
+    "de": "Grippe, COVID-19 und RSV in deinem US-Bundesstaat oder County: Abwasser und Kliniken (CDC).",
+    "es": "Gripe, COVID-19 y VRS en su estado o condado de EE. UU.: aguas residuales y hospitales (CDC)."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
-  "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "docker_image": "ghcr.io/guim31/gladys-cdc-respiratory:1.0.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-cdc-respiratory/main/cover.png",
+  "categories": ["environment"],
+  "countries": ["US"],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your places",
+        "fr": "Vos lieux",
+        "de": "Deine Orte",
+        "es": "Sus lugares"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Choose your states, and type counties if you wish: one device per place, with the wastewater level of COVID-19, flu and RSV, its trend, and the hospital admissions of the state. Save, then create the devices in the Discover tab.",
+        "fr": "Choisissez vos États et, si vous le souhaitez, des comtés : un appareil par lieu, avec le niveau dans les eaux usées du COVID-19, de la grippe et du VRS, sa tendance et les hospitalisations de l'État. Enregistrez, puis créez les appareils dans l'onglet Découverte.",
+        "de": "Wähle deine Bundesstaaten und auf Wunsch Countys: ein Gerät pro Ort, mit der Abwasserstufe von COVID-19, Grippe und RSV, ihrer Tendenz und den Klinikaufnahmen des Bundesstaats. Speichere und lege dann die Geräte im Tab „Entdecken“ an.",
+        "es": "Elija sus estados y, si lo desea, condados: un dispositivo por lugar, con el nivel en aguas residuales de COVID-19, gripe y VRS, su tendencia y las hospitalizaciones del estado. Guarde y cree los dispositivos en la pestaña Descubrir."
+      }
+    },
+    {
+      "key": "about",
+      "type": "section",
+      "label": {
+        "en": "Sources and limits",
+        "fr": "Sources et limites",
+        "de": "Quellen und Grenzen",
+        "es": "Fuentes y límites"
+      },
+      "description": {
+        "en": "CDC open data (NWSS wastewater, NHSN hospitals), read without an account every 6 hours; the CDC publishes once a week. United States only. Public health information, not medical advice. Not affiliated with the CDC.",
+        "fr": "Données ouvertes du CDC (eaux usées NWSS, hôpitaux NHSN), lues sans compte toutes les 6 heures ; le CDC publie une fois par semaine. États-Unis seulement. Information de santé publique, pas un avis médical. Non affiliée au CDC.",
+        "de": "Offene Daten der CDC (Abwasser NWSS, Kliniken NHSN), ohne Konto alle 6 Stunden gelesen; die CDC veröffentlicht einmal pro Woche. Nur USA. Information zur öffentlichen Gesundheit, keine ärztliche Beratung. Nicht mit der CDC verbunden.",
+        "es": "Datos abiertos de los CDC (aguas residuales NWSS, hospitales NHSN), leídos sin cuenta cada 6 horas; los CDC publican una vez por semana. Solo Estados Unidos. Información de salud pública, no un consejo médico. Sin afiliación con los CDC."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://www.cdc.gov/nwss/rv/index.html",
+          "label": {
+            "en": "CDC wastewater data",
+            "fr": "Eaux usées sur le site du CDC",
+            "de": "Abwasserdaten der CDC",
+            "es": "Aguas residuales en el sitio de los CDC"
+          }
+        },
+        {
+          "url": "https://www.cdc.gov/respiratory-viruses/data/index.html",
+          "label": {
+            "en": "CDC respiratory illnesses data",
+            "fr": "Données respiratoires du CDC",
+            "de": "Atemwegsdaten der CDC",
+            "es": "Datos respiratorios de los CDC"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "states",
+      "type": "multi_select",
+      "label": {
+        "en": "States",
+        "fr": "États",
+        "de": "Bundesstaaten",
+        "es": "Estados"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
       "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+        "en": "One device per state chosen.",
+        "fr": "Un appareil par État choisi.",
+        "de": "Ein Gerät pro gewähltem Bundesstaat.",
+        "es": "Un dispositivo por estado elegido."
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
       "required": false,
-      "default": "celsius",
+      "default": [],
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "AL",
+          "label": {
+            "en": "Alabama",
+            "fr": "Alabama",
+            "de": "Alabama",
+            "es": "Alabama"
+          }
+        },
+        {
+          "value": "AK",
+          "label": {
+            "en": "Alaska",
+            "fr": "Alaska",
+            "de": "Alaska",
+            "es": "Alaska"
+          }
+        },
+        {
+          "value": "AZ",
+          "label": {
+            "en": "Arizona",
+            "fr": "Arizona",
+            "de": "Arizona",
+            "es": "Arizona"
+          }
+        },
+        {
+          "value": "AR",
+          "label": {
+            "en": "Arkansas",
+            "fr": "Arkansas",
+            "de": "Arkansas",
+            "es": "Arkansas"
+          }
+        },
+        {
+          "value": "CA",
+          "label": {
+            "en": "California",
+            "fr": "California",
+            "de": "California",
+            "es": "California"
+          }
+        },
+        {
+          "value": "CO",
+          "label": {
+            "en": "Colorado",
+            "fr": "Colorado",
+            "de": "Colorado",
+            "es": "Colorado"
+          }
+        },
+        {
+          "value": "CT",
+          "label": {
+            "en": "Connecticut",
+            "fr": "Connecticut",
+            "de": "Connecticut",
+            "es": "Connecticut"
+          }
+        },
+        {
+          "value": "DE",
+          "label": {
+            "en": "Delaware",
+            "fr": "Delaware",
+            "de": "Delaware",
+            "es": "Delaware"
+          }
+        },
+        {
+          "value": "DC",
+          "label": {
+            "en": "District of Columbia",
+            "fr": "District of Columbia",
+            "de": "District of Columbia",
+            "es": "District of Columbia"
+          }
+        },
+        {
+          "value": "FL",
+          "label": {
+            "en": "Florida",
+            "fr": "Florida",
+            "de": "Florida",
+            "es": "Florida"
+          }
+        },
+        {
+          "value": "GA",
+          "label": {
+            "en": "Georgia",
+            "fr": "Georgia",
+            "de": "Georgia",
+            "es": "Georgia"
+          }
+        },
+        {
+          "value": "HI",
+          "label": {
+            "en": "Hawaii",
+            "fr": "Hawaii",
+            "de": "Hawaii",
+            "es": "Hawaii"
+          }
+        },
+        {
+          "value": "ID",
+          "label": {
+            "en": "Idaho",
+            "fr": "Idaho",
+            "de": "Idaho",
+            "es": "Idaho"
+          }
+        },
+        {
+          "value": "IL",
+          "label": {
+            "en": "Illinois",
+            "fr": "Illinois",
+            "de": "Illinois",
+            "es": "Illinois"
+          }
+        },
+        {
+          "value": "IN",
+          "label": {
+            "en": "Indiana",
+            "fr": "Indiana",
+            "de": "Indiana",
+            "es": "Indiana"
+          }
+        },
+        {
+          "value": "IA",
+          "label": {
+            "en": "Iowa",
+            "fr": "Iowa",
+            "de": "Iowa",
+            "es": "Iowa"
+          }
+        },
+        {
+          "value": "KS",
+          "label": {
+            "en": "Kansas",
+            "fr": "Kansas",
+            "de": "Kansas",
+            "es": "Kansas"
+          }
+        },
+        {
+          "value": "KY",
+          "label": {
+            "en": "Kentucky",
+            "fr": "Kentucky",
+            "de": "Kentucky",
+            "es": "Kentucky"
+          }
+        },
+        {
+          "value": "LA",
+          "label": {
+            "en": "Louisiana",
+            "fr": "Louisiana",
+            "de": "Louisiana",
+            "es": "Louisiana"
+          }
+        },
+        {
+          "value": "ME",
+          "label": {
+            "en": "Maine",
+            "fr": "Maine",
+            "de": "Maine",
+            "es": "Maine"
+          }
+        },
+        {
+          "value": "MD",
+          "label": {
+            "en": "Maryland",
+            "fr": "Maryland",
+            "de": "Maryland",
+            "es": "Maryland"
+          }
+        },
+        {
+          "value": "MA",
+          "label": {
+            "en": "Massachusetts",
+            "fr": "Massachusetts",
+            "de": "Massachusetts",
+            "es": "Massachusetts"
+          }
+        },
+        {
+          "value": "MI",
+          "label": {
+            "en": "Michigan",
+            "fr": "Michigan",
+            "de": "Michigan",
+            "es": "Michigan"
+          }
+        },
+        {
+          "value": "MN",
+          "label": {
+            "en": "Minnesota",
+            "fr": "Minnesota",
+            "de": "Minnesota",
+            "es": "Minnesota"
+          }
+        },
+        {
+          "value": "MS",
+          "label": {
+            "en": "Mississippi",
+            "fr": "Mississippi",
+            "de": "Mississippi",
+            "es": "Mississippi"
+          }
+        },
+        {
+          "value": "MO",
+          "label": {
+            "en": "Missouri",
+            "fr": "Missouri",
+            "de": "Missouri",
+            "es": "Missouri"
+          }
+        },
+        {
+          "value": "MT",
+          "label": {
+            "en": "Montana",
+            "fr": "Montana",
+            "de": "Montana",
+            "es": "Montana"
+          }
+        },
+        {
+          "value": "NE",
+          "label": {
+            "en": "Nebraska",
+            "fr": "Nebraska",
+            "de": "Nebraska",
+            "es": "Nebraska"
+          }
+        },
+        {
+          "value": "NV",
+          "label": {
+            "en": "Nevada",
+            "fr": "Nevada",
+            "de": "Nevada",
+            "es": "Nevada"
+          }
+        },
+        {
+          "value": "NH",
+          "label": {
+            "en": "New Hampshire",
+            "fr": "New Hampshire",
+            "de": "New Hampshire",
+            "es": "New Hampshire"
+          }
+        },
+        {
+          "value": "NJ",
+          "label": {
+            "en": "New Jersey",
+            "fr": "New Jersey",
+            "de": "New Jersey",
+            "es": "New Jersey"
+          }
+        },
+        {
+          "value": "NM",
+          "label": {
+            "en": "New Mexico",
+            "fr": "New Mexico",
+            "de": "New Mexico",
+            "es": "New Mexico"
+          }
+        },
+        {
+          "value": "NY",
+          "label": {
+            "en": "New York",
+            "fr": "New York",
+            "de": "New York",
+            "es": "New York"
+          }
+        },
+        {
+          "value": "NC",
+          "label": {
+            "en": "North Carolina",
+            "fr": "North Carolina",
+            "de": "North Carolina",
+            "es": "North Carolina"
+          }
+        },
+        {
+          "value": "ND",
+          "label": {
+            "en": "North Dakota",
+            "fr": "North Dakota",
+            "de": "North Dakota",
+            "es": "North Dakota"
+          }
+        },
+        {
+          "value": "OH",
+          "label": {
+            "en": "Ohio",
+            "fr": "Ohio",
+            "de": "Ohio",
+            "es": "Ohio"
+          }
+        },
+        {
+          "value": "OK",
+          "label": {
+            "en": "Oklahoma",
+            "fr": "Oklahoma",
+            "de": "Oklahoma",
+            "es": "Oklahoma"
+          }
+        },
+        {
+          "value": "OR",
+          "label": {
+            "en": "Oregon",
+            "fr": "Oregon",
+            "de": "Oregon",
+            "es": "Oregon"
+          }
+        },
+        {
+          "value": "PA",
+          "label": {
+            "en": "Pennsylvania",
+            "fr": "Pennsylvania",
+            "de": "Pennsylvania",
+            "es": "Pennsylvania"
+          }
+        },
+        {
+          "value": "PR",
+          "label": {
+            "en": "Puerto Rico",
+            "fr": "Puerto Rico",
+            "de": "Puerto Rico",
+            "es": "Puerto Rico"
+          }
+        },
+        {
+          "value": "RI",
+          "label": {
+            "en": "Rhode Island",
+            "fr": "Rhode Island",
+            "de": "Rhode Island",
+            "es": "Rhode Island"
+          }
+        },
+        {
+          "value": "SC",
+          "label": {
+            "en": "South Carolina",
+            "fr": "South Carolina",
+            "de": "South Carolina",
+            "es": "South Carolina"
+          }
+        },
+        {
+          "value": "SD",
+          "label": {
+            "en": "South Dakota",
+            "fr": "South Dakota",
+            "de": "South Dakota",
+            "es": "South Dakota"
+          }
+        },
+        {
+          "value": "TN",
+          "label": {
+            "en": "Tennessee",
+            "fr": "Tennessee",
+            "de": "Tennessee",
+            "es": "Tennessee"
+          }
+        },
+        {
+          "value": "TX",
+          "label": {
+            "en": "Texas",
+            "fr": "Texas",
+            "de": "Texas",
+            "es": "Texas"
+          }
+        },
+        {
+          "value": "UT",
+          "label": {
+            "en": "Utah",
+            "fr": "Utah",
+            "de": "Utah",
+            "es": "Utah"
+          }
+        },
+        {
+          "value": "VT",
+          "label": {
+            "en": "Vermont",
+            "fr": "Vermont",
+            "de": "Vermont",
+            "es": "Vermont"
+          }
+        },
+        {
+          "value": "VA",
+          "label": {
+            "en": "Virginia",
+            "fr": "Virginia",
+            "de": "Virginia",
+            "es": "Virginia"
+          }
+        },
+        {
+          "value": "WA",
+          "label": {
+            "en": "Washington",
+            "fr": "Washington",
+            "de": "Washington",
+            "es": "Washington"
+          }
+        },
+        {
+          "value": "WV",
+          "label": {
+            "en": "West Virginia",
+            "fr": "West Virginia",
+            "de": "West Virginia",
+            "es": "West Virginia"
+          }
+        },
+        {
+          "value": "WI",
+          "label": {
+            "en": "Wisconsin",
+            "fr": "Wisconsin",
+            "de": "Wisconsin",
+            "es": "Wisconsin"
+          }
+        },
+        {
+          "value": "WY",
+          "label": {
+            "en": "Wyoming",
+            "fr": "Wyoming",
+            "de": "Wyoming",
+            "es": "Wyoming"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "counties",
+      "type": "string",
+      "label": {
+        "en": "Counties",
+        "fr": "Comtés",
+        "de": "Countys",
+        "es": "Condados"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "County name and state code, separated by semicolons, 10 at most. Wastewater of the county's own stations; without one, the state's level.",
+        "fr": "Nom du comté et code de l'État, séparés par des points-virgules, 10 au plus. Eaux usées des stations du comté ; sans station, le niveau de l'État.",
+        "de": "Name des Countys und Kürzel des Bundesstaats, durch Semikolons getrennt, höchstens 10. Abwasser der eigenen Kläranlagen; ohne eine, die Stufe des Bundesstaats.",
+        "es": "Nombre del condado y código del estado, separados por punto y coma, 10 como máximo. Aguas residuales de sus propias plantas; sin planta, el nivel del estado."
+      },
+      "placeholder": {
+        "en": "Harris, TX; Chittenden, VT",
+        "fr": "Harris, TX; Chittenden, VT",
+        "de": "Harris, TX; Chittenden, VT",
+        "es": "Harris, TX; Chittenden, VT"
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
-    }
-  ],
-  "actions": [
-    {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
+      "default": ""
     },
     {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
+      "key": "app_token",
+      "type": "secret",
+      "label": {
+        "en": "Application token (optional)",
+        "fr": "Jeton d'application (facultatif)",
+        "de": "App-Token (optional)",
+        "es": "Token de aplicación (opcional)"
+      },
+      "description": {
+        "en": "Free data.cdc.gov token that raises the request limit of your address. Not needed for most homes.",
+        "fr": "Jeton gratuit de data.cdc.gov qui relève la limite de requêtes de votre adresse. Inutile dans la plupart des foyers.",
+        "de": "Kostenloses Token von data.cdc.gov, das das Anfragelimit deiner Adresse anhebt. Für die meisten Haushalte unnötig.",
+        "es": "Token gratuito de data.cdc.gov que eleva el límite de solicitudes de su dirección. Innecesario en la mayoría de los hogares."
+      },
+      "required": false
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the feature names",
+        "fr": "Langue des noms de fonctionnalités",
+        "de": "Sprache der Funktionsnamen",
+        "es": "Idioma de los nombres de las funciones"
+      },
+      "description": {
+        "en": "Names given to the new features, and language of their texts (trends, weeks, scene variables and summary).",
+        "fr": "Noms donnés aux nouvelles fonctionnalités, et langue de leurs textes (tendances, semaines, variables de scène et résumé).",
+        "de": "Namen neuer Funktionen und Sprache ihrer Texte (Tendenzen, Wochen, Szenenvariablen und Zusammenfassung).",
+        "es": "Nombres de las nuevas funciones e idioma de sus textos (tendencias, semanas, variables de escena y resumen)."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
         }
       ]
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "level_rose_to",
+      "label": {
+        "en": "Respiratory virus level rises",
+        "fr": "Le niveau d'un virus respiratoire monte",
+        "de": "Stufe eines Atemwegsvirus steigt",
+        "es": "Sube el nivel de un virus respiratorio"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A wastewater or hospital level of a place reaches the chosen level from below (once, when the new week is published).",
+        "fr": "Un niveau eaux usées ou hôpital d'un lieu atteint le niveau choisi en montant (une fois, à la publication de la nouvelle semaine).",
+        "de": "Eine Abwasser- oder Klinikstufe eines Orts erreicht von unten die gewählte Stufe (einmal, wenn die neue Woche erscheint).",
+        "es": "Un nivel de aguas residuales u hospitalario de un lugar alcanza el nivel elegido desde abajo (una vez, al publicarse la nueva semana)."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "place",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "required": false,
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "key": "virus",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Virus",
+            "fr": "Virus",
+            "de": "Virus",
+            "es": "Virus"
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "covid",
+              "label": {
+                "en": "COVID-19",
+                "fr": "COVID-19",
+                "de": "COVID-19",
+                "es": "COVID-19"
+              }
+            },
+            {
+              "value": "flu",
+              "label": {
+                "en": "Flu (influenza A in wastewater)",
+                "fr": "Grippe (grippe A dans les eaux usées)",
+                "de": "Grippe (Influenza A im Abwasser)",
+                "es": "Gripe (influenza A en aguas residuales)"
+              }
+            },
+            {
+              "value": "rsv",
+              "label": {
+                "en": "RSV",
+                "fr": "VRS",
+                "de": "RSV",
+                "es": "VRS"
+              }
+            }
+          ]
+        },
+        {
+          "key": "indicator",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Indicator",
+            "fr": "Indicateur",
+            "de": "Indikator",
+            "es": "Indicador"
+          },
+          "options": [
+            {
+              "value": "wastewater",
+              "label": {
+                "en": "Wastewater",
+                "fr": "Eaux usées",
+                "de": "Abwasser",
+                "es": "Aguas residuales"
+              }
+            },
+            {
+              "value": "hospital",
+              "label": {
+                "en": "Hospital admissions",
+                "fr": "Hospitalisations",
+                "de": "Klinikaufnahmen",
+                "es": "Hospitalizaciones"
+              }
+            }
+          ]
+        },
+        {
+          "key": "threshold",
+          "type": "select",
+          "required": true,
+          "label": {
+            "en": "Level reached",
+            "fr": "Niveau atteint",
+            "de": "Erreichte Stufe",
+            "es": "Nivel alcanzado"
+          },
+          "options": [
+            {
+              "value": "2",
+              "label": {
+                "en": "Low",
+                "fr": "Bas",
+                "de": "Niedrig",
+                "es": "Bajo"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Moderate",
+                "fr": "Modéré",
+                "de": "Mäßig",
+                "es": "Moderado"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "High",
+                "fr": "Élevé",
+                "de": "Hoch",
+                "es": "Alto"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "Very high",
+                "fr": "Très élevé",
+                "de": "Sehr hoch",
+                "es": "Muy alto"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "place_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          }
+        },
+        {
+          "key": "virus_name",
+          "type": "string",
+          "label": {
+            "en": "Virus",
+            "fr": "Virus",
+            "de": "Virus",
+            "es": "Virus"
+          }
+        },
+        {
+          "key": "indicator_name",
+          "type": "string",
+          "label": {
+            "en": "Indicator",
+            "fr": "Indicateur",
+            "de": "Indikator",
+            "es": "Indicador"
+          }
+        },
+        {
+          "key": "level",
+          "type": "number",
+          "label": {
+            "en": "Level (1 to 5)",
+            "fr": "Niveau (1 à 5)",
+            "de": "Stufe (1 bis 5)",
+            "es": "Nivel (1 a 5)"
+          }
+        },
+        {
+          "key": "level_name",
+          "type": "string",
+          "label": {
+            "en": "Level name",
+            "fr": "Nom du niveau",
+            "de": "Name der Stufe",
+            "es": "Nombre del nivel"
+          }
+        },
+        {
+          "key": "previous_level_name",
+          "type": "string",
+          "label": {
+            "en": "Previous level",
+            "fr": "Niveau précédent",
+            "de": "Vorherige Stufe",
+            "es": "Nivel anterior"
+          }
+        },
+        {
+          "key": "week",
+          "type": "string",
+          "label": {
+            "en": "Week ending",
+            "fr": "Semaine au",
+            "de": "Woche bis",
+            "es": "Semana hasta el"
+          }
+        }
+      ]
+    },
+    {
+      "key": "level_fell_below",
+      "label": {
+        "en": "Respiratory virus level falls",
+        "fr": "Le niveau d'un virus respiratoire baisse",
+        "de": "Stufe eines Atemwegsvirus sinkt",
+        "es": "Baja el nivel de un virus respiratorio"
+      },
+      "description": {
+        "en": "A wastewater or hospital level of a place goes back below the chosen level (once, when the new week is published).",
+        "fr": "Un niveau eaux usées ou hôpital d'un lieu repasse sous le niveau choisi (une fois, à la publication de la nouvelle semaine).",
+        "de": "Eine Abwasser- oder Klinikstufe eines Orts fällt wieder unter die gewählte Stufe (einmal, wenn die neue Woche erscheint).",
+        "es": "Un nivel de aguas residuales u hospitalario de un lugar vuelve a bajar del nivel elegido (una vez, al publicarse la nueva semana)."
+      },
+      "fields": [
+        {
+          "key": "place",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          }
+        },
+        {
+          "key": "virus",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Virus",
+            "fr": "Virus",
+            "de": "Virus",
+            "es": "Virus"
+          },
+          "options": [
+            {
+              "value": "covid",
+              "label": {
+                "en": "COVID-19",
+                "fr": "COVID-19",
+                "de": "COVID-19",
+                "es": "COVID-19"
+              }
+            },
+            {
+              "value": "flu",
+              "label": {
+                "en": "Flu (influenza A in wastewater)",
+                "fr": "Grippe (grippe A dans les eaux usées)",
+                "de": "Grippe (Influenza A im Abwasser)",
+                "es": "Gripe (influenza A en aguas residuales)"
+              }
+            },
+            {
+              "value": "rsv",
+              "label": {
+                "en": "RSV",
+                "fr": "VRS",
+                "de": "RSV",
+                "es": "VRS"
+              }
+            }
+          ]
+        },
+        {
+          "key": "indicator",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Indicator",
+            "fr": "Indicateur",
+            "de": "Indikator",
+            "es": "Indicador"
+          },
+          "options": [
+            {
+              "value": "wastewater",
+              "label": {
+                "en": "Wastewater",
+                "fr": "Eaux usées",
+                "de": "Abwasser",
+                "es": "Aguas residuales"
+              }
+            },
+            {
+              "value": "hospital",
+              "label": {
+                "en": "Hospital admissions",
+                "fr": "Hospitalisations",
+                "de": "Klinikaufnahmen",
+                "es": "Hospitalizaciones"
+              }
+            }
+          ]
+        },
+        {
+          "key": "threshold",
+          "type": "select",
+          "required": true,
+          "label": {
+            "en": "Level left",
+            "fr": "Niveau quitté",
+            "de": "Verlassene Stufe",
+            "es": "Nivel abandonado"
+          },
+          "options": [
+            {
+              "value": "2",
+              "label": {
+                "en": "Low",
+                "fr": "Bas",
+                "de": "Niedrig",
+                "es": "Bajo"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Moderate",
+                "fr": "Modéré",
+                "de": "Mäßig",
+                "es": "Moderado"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "High",
+                "fr": "Élevé",
+                "de": "Hoch",
+                "es": "Alto"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "Very high",
+                "fr": "Très élevé",
+                "de": "Sehr hoch",
+                "es": "Muy alto"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "place_name",
+          "type": "string",
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          }
+        },
+        {
+          "key": "virus_name",
+          "type": "string",
+          "label": {
+            "en": "Virus",
+            "fr": "Virus",
+            "de": "Virus",
+            "es": "Virus"
+          }
+        },
+        {
+          "key": "indicator_name",
+          "type": "string",
+          "label": {
+            "en": "Indicator",
+            "fr": "Indicateur",
+            "de": "Indikator",
+            "es": "Indicador"
+          }
+        },
+        {
+          "key": "level",
+          "type": "number",
+          "label": {
+            "en": "Level (1 to 5)",
+            "fr": "Niveau (1 à 5)",
+            "de": "Stufe (1 bis 5)",
+            "es": "Nivel (1 a 5)"
+          }
+        },
+        {
+          "key": "level_name",
+          "type": "string",
+          "label": {
+            "en": "Level name",
+            "fr": "Nom du niveau",
+            "de": "Name der Stufe",
+            "es": "Nombre del nivel"
+          }
+        },
+        {
+          "key": "previous_level_name",
+          "type": "string",
+          "label": {
+            "en": "Previous level",
+            "fr": "Niveau précédent",
+            "de": "Vorherige Stufe",
+            "es": "Nivel anterior"
+          }
+        },
+        {
+          "key": "week",
+          "type": "string",
+          "label": {
+            "en": "Week ending",
+            "fr": "Semaine au",
+            "de": "Woche bis",
+            "es": "Semana hasta el"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "get_summary",
+      "label": {
+        "en": "CDC: get the week in one sentence",
+        "fr": "CDC : obtenir la semaine en une phrase",
+        "de": "CDC: die Woche in einem Satz abrufen",
+        "es": "CDC: obtener la semana en una frase"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "The latest levels of a place, their trend and the hospital admissions, in a sentence ready for a notification (language of the configuration).",
+        "fr": "Les derniers niveaux d'un lieu, leur tendance et les hospitalisations, en une phrase prête pour une notification (langue de la configuration).",
+        "de": "Die letzten Stufen eines Orts, ihre Tendenz und die Klinikaufnahmen, in einem fertigen Satz für eine Benachrichtigung (Sprache der Konfiguration).",
+        "es": "Los últimos niveles de un lugar, su tendencia y las hospitalizaciones, en una frase lista para una notificación (idioma de la configuración)."
+      },
+      "timeout_seconds": 10,
       "fields": [
         {
-          "key": "device",
+          "key": "place",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "required": false,
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          },
+          "description": {
+            "en": "Empty: the first place followed.",
+            "fr": "Vide : le premier lieu suivi.",
+            "de": "Leer: der erste verfolgte Ort.",
+            "es": "Vacío: el primer lugar seguido."
+          }
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
+          }
+        },
+        {
+          "key": "place_name",
+          "type": "string",
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          }
+        },
+        {
+          "key": "covid_wastewater_level",
+          "type": "number",
+          "label": {
+            "en": "COVID-19, wastewater level",
+            "fr": "COVID-19, niveau eaux usées",
+            "de": "COVID-19, Abwasserstufe",
+            "es": "COVID-19, nivel aguas residuales"
+          }
+        },
+        {
+          "key": "covid_hospital_level",
+          "type": "number",
+          "label": {
+            "en": "COVID-19, hospital level",
+            "fr": "COVID-19, niveau hôpital",
+            "de": "COVID-19, Klinikstufe",
+            "es": "COVID-19, nivel hospital"
+          }
+        },
+        {
+          "key": "covid_admissions",
+          "type": "number",
+          "label": {
+            "en": "COVID-19, admissions /100,000",
+            "fr": "COVID-19, hospitalisations /100 000",
+            "de": "COVID-19, Klinikaufnahmen /100.000",
+            "es": "COVID-19, hospitalizaciones /100.000"
+          }
+        },
+        {
+          "key": "flu_wastewater_level",
+          "type": "number",
+          "label": {
+            "en": "Flu, wastewater level",
+            "fr": "Grippe, niveau eaux usées",
+            "de": "Grippe, Abwasserstufe",
+            "es": "Gripe, nivel aguas residuales"
+          }
+        },
+        {
+          "key": "flu_hospital_level",
+          "type": "number",
+          "label": {
+            "en": "Flu, hospital level",
+            "fr": "Grippe, niveau hôpital",
+            "de": "Grippe, Klinikstufe",
+            "es": "Gripe, nivel hospital"
+          }
+        },
+        {
+          "key": "flu_admissions",
+          "type": "number",
+          "label": {
+            "en": "Flu, admissions /100,000",
+            "fr": "Grippe, hospitalisations /100 000",
+            "de": "Grippe, Klinikaufnahmen /100.000",
+            "es": "Gripe, hospitalizaciones /100.000"
+          }
+        },
+        {
+          "key": "rsv_wastewater_level",
+          "type": "number",
+          "label": {
+            "en": "RSV, wastewater level",
+            "fr": "VRS, niveau eaux usées",
+            "de": "RSV, Abwasserstufe",
+            "es": "VRS, nivel aguas residuales"
+          }
+        },
+        {
+          "key": "rsv_hospital_level",
+          "type": "number",
+          "label": {
+            "en": "RSV, hospital level",
+            "fr": "VRS, niveau hôpital",
+            "de": "RSV, Klinikstufe",
+            "es": "VRS, nivel hospital"
+          }
+        },
+        {
+          "key": "rsv_admissions",
+          "type": "number",
+          "label": {
+            "en": "RSV, admissions /100,000",
+            "fr": "VRS, hospitalisations /100 000",
+            "de": "RSV, Klinikaufnahmen /100.000",
+            "es": "VRS, hospitalizaciones /100.000"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
+      "key": "respiratory",
+      "label": {
+        "en": "Respiratory viruses",
+        "fr": "Virus respiratoires",
+        "de": "Atemwegsviren",
+        "es": "Virus respiratorios"
+      },
       "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+        "en": "COVID-19, flu and RSV levels of one of your places.",
+        "fr": "Niveaux du COVID-19, de la grippe et du VRS d'un de vos lieux.",
+        "de": "Stufen von COVID-19, Grippe und RSV an einem deiner Orte.",
+        "es": "Niveles de COVID-19, gripe y VRS de uno de sus lugares."
       },
       "icon": "activity",
-      "action_timeout_seconds": 15
+      "settings": [
+        {
+          "key": "place",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Place",
+            "fr": "Lieu",
+            "de": "Ort",
+            "es": "Lugar"
+          },
+          "description": {
+            "en": "Empty: the first place followed.",
+            "fr": "Vide : le premier lieu suivi.",
+            "de": "Leer: der erste verfolgte Ort.",
+            "es": "Vacío: el primer lugar seguido."
+          }
+        },
+        {
+          "key": "indicators",
+          "type": "multi_select",
+          "required": false,
+          "default": ["wastewater", "hospital"],
+          "label": {
+            "en": "Indicators shown",
+            "fr": "Indicateurs affichés",
+            "de": "Angezeigte Indikatoren",
+            "es": "Indicadores mostrados"
+          },
+          "options": [
+            {
+              "value": "wastewater",
+              "label": {
+                "en": "Wastewater",
+                "fr": "Eaux usées",
+                "de": "Abwasser",
+                "es": "Aguas residuales"
+              }
+            },
+            {
+              "value": "hospital",
+              "label": {
+                "en": "Hospital admissions",
+                "fr": "Hospitalisations",
+                "de": "Klinikaufnahmen",
+                "es": "Hospitalizaciones"
+              }
+            }
+          ]
+        },
+        {
+          "key": "show_source",
+          "type": "boolean",
+          "default": true,
+          "label": {
+            "en": "Show the week and the source",
+            "fr": "Afficher la semaine et la source",
+            "de": "Woche und Quelle zeigen",
+            "es": "Mostrar la semana y la fuente"
+          }
+        }
+      ]
     }
   ]
 }

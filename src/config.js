@@ -1,45 +1,92 @@
 // -----------------------------------------------------------------------------
-// Integration configuration.
+// Integration configuration: defaults (they mirror the `default` values of the
+// manifest `config_schema`, see test/manifest.test.js) and normalization, so
+// the rest of the code never deals with strings, blanks or `undefined`.
 //
-// The configuration is filled in by the user in Gladys, from the `config_schema`
-// declared in `gladys-assistant-integration.json`. The SDK fetches it for you
-// (`gladys.getConfig()`) and notifies you of every change through
-// `gladys.onConfigUpdated()`.
-//
-// This module only provides defaults and normalizes the received object, so the
-// rest of the code never has to deal with `undefined`.
+// A place is what a device follows: a state ("VT"), or a county of a state
+// typed by the user ("Chittenden, VT" → id "VT-chittenden"). The id is the
+// platform id of the device: it never changes for the same typed county.
 // -----------------------------------------------------------------------------
 
-// Defaults: they MUST stay consistent with the `default` values declared in the
-// `config_schema` of the manifest.
+import { stateOf } from './states.js';
+
+export const LANGUAGES = ['en', 'fr', 'de', 'es'];
+
+// The CDC publishes once a week (Friday for the wastewater, Wednesday to
+// Friday for the hospitals); four reads a day see a new week within 6 hours
+// and stay two requests each, far from the anonymous limits of the API.
+export const REFRESH_HOURS = 6;
+
+// Ten counties keep the device list and the wastewater query small.
+export const MAX_COUNTIES = 10;
+
 export const DEFAULT_CONFIG = {
-  latitude: 48.8566, // Paris
-  longitude: 2.3522,
-  unit: 'celsius', // 'celsius' | 'fahrenheit'
-  // Seconds between two reads of the polled sensors. Gladys polls at most once
-  // a minute: slower intervals are applied by skipping polls (see
-  // createPoller in src/devices/index.js).
-  poll_frequency: 300,
-  // Reserved key (NOT in config_schema): because the manifest declares both
-  // 'local' and 'cloud' in its `transports` field, Gladys shows a standard
-  // "Prefer the local connection" toggle and sends the user's choice here.
-  // Read-only for the integration; defaults to true.
-  GLADYS_PREFER_LOCAL: true,
+  states: [],
+  counties: '',
+  language: 'fr',
 };
 
+// Words the CDC leaves out of `counties_served` ("Chittenden", not
+// "Chittenden County"), removed before matching.
+const COUNTY_SUFFIX = /\s+(county|parish|borough|census area|municipality|city and borough)$/i;
+
+/** The matching key of a county name: "St. Louis County" → "st louis". */
+export function countyKey(name) {
+  return String(name ?? '')
+    .trim()
+    .replace(COUNTY_SUFFIX, '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
 /**
- * Merge the user config with the defaults.
- * @param {Record<string, unknown>} raw config returned by the SDK
+ * Counties typed by the user: "Chittenden, VT; Harris County, TX", one per
+ * line or separated by semicolons. An entry without a known state code is
+ * ignored.
+ * @returns {{id: string, state: string, county: string, key: string}[]}
+ */
+export function parseCounties(value) {
+  const entries = Array.isArray(value) ? value.map(String) : String(value ?? '').split(/[;\n]+/);
+  const places = [];
+  for (const entry of entries) {
+    const match = /^(.+),\s*([A-Za-z]{2})\s*$/.exec(entry.trim());
+    const state = match ? stateOf(match[2]) : null;
+    const county = match ? match[1].trim().replace(/\s+/g, ' ') : '';
+    const key = countyKey(county);
+    if (!state || !key) {
+      continue;
+    }
+    const id = `${state.code}-${key.replace(/ /g, '-')}`;
+    if (!places.some((place) => place.id === id)) {
+      places.push({ id, state: state.code, county, key });
+    }
+  }
+  return places.slice(0, MAX_COUNTIES);
+}
+
+/**
+ * @param {object} raw configuration from Gladys
+ * @returns {{places: object[], appToken: string, language: string}}
  */
 export function normalizeConfig(raw = {}) {
-  return {
-    ...DEFAULT_CONFIG,
-    ...raw,
-    // Force the types: config may arrive as strings from a form.
-    latitude: Number(raw.latitude ?? DEFAULT_CONFIG.latitude),
-    longitude: Number(raw.longitude ?? DEFAULT_CONFIG.longitude),
-    poll_frequency: Number(raw.poll_frequency ?? DEFAULT_CONFIG.poll_frequency),
-    // The preference is a boolean; anything but an explicit false means true.
-    GLADYS_PREFER_LOCAL: raw.GLADYS_PREFER_LOCAL !== false,
-  };
+  const config = { ...DEFAULT_CONFIG, ...(raw ?? {}) };
+  let values = config.states;
+  if (typeof values === 'string') {
+    // A value typed by hand: "VT, TX".
+    values = values.split(/[\s,;]+/);
+  }
+  const places = [];
+  for (const value of Array.isArray(values) ? values : []) {
+    const state = stateOf(value);
+    if (state && !places.some((place) => place.id === state.code)) {
+      places.push({ id: state.code, state: state.code, county: null, key: null });
+    }
+  }
+  places.push(...parseCounties(config.counties));
+  const appToken = typeof config.app_token === 'string' ? config.app_token.trim() : '';
+  const language = LANGUAGES.includes(config.language) ? config.language : DEFAULT_CONFIG.language;
+  return { places, appToken, language };
 }

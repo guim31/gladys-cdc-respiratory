@@ -30,6 +30,16 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- `/data/cdc-respiratory.json`: the rows last read from data.cdc.gov (public, aggregated data:
+  weekly levels per treatment plant and per state), the time of the last read, a rate-limit
+  pause, and the last week and level seen per place, virus and indicator. No personal data.
+- One optional secret: the data.cdc.gov application token, stored by Gladys in the integration
+  configuration, sent only in the `X-App-Token` header to data.cdc.gov, never logged nor written
+  under `/data`.
+- Network: outgoing HTTPS only, to `data.cdc.gov`. The container listens on no port.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the third-party services the integration talks to.
