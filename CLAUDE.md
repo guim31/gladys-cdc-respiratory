@@ -32,14 +32,19 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/app.js                        registers every SDK handler, returns the monitor (tests use it too)
+src/monitor.js                    6-hour cycle: two CDC requests, states, triggers, status
+src/cdc.js                        client of data.cdc.gov (SoQL queries, 429 pause, token) + parsing
+src/levels.js                     median level of the sites, trend, county match, hospital rows
+src/devices.js                    one device per place (state or county): features, states, ids
+src/states.js                     the 50 states, DC and Puerto Rico (postal code, English name)
+src/messages.js                   viruses, levels, trends and texts in en/fr/de/es
+src/widgets.js                    dashboard widget `respiratory`
+src/scenes.js                     scene action `get_summary`
+src/store.js                      /data/cdc-respiratory.json (rows, read time, pause, trigger references)
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+gladys-assistant-integration.json manifest: name, config_schema, triggers, action, widget...
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (same sections)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
@@ -70,8 +75,8 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German, Spanish):
+  action messages, manifest texts, and `docs/*.md`, kept in sync.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -251,3 +256,24 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Virus respiratoires CDC : API et pièges
+
+- **data.cdc.gov** (Socrata SODA, `https://data.cdc.gov/resource/<id>.json`), sans clé ; jeton facultatif dans
+  l'en-tête `X-App-Token` (limite par IP sans jeton, 429 au-delà). Jeux retenus, identifiants stables, domaine public :
+  `atcp-73re` (NWSS, WVAL **par station** pour SARS-CoV-2, « Influenza A virus » et RSV, le vendredi) et `vdzy-6i9v`
+  (NHSN, taux et niveaux d'hospitalisation **par État**, `jurisdiction` en code postal, `USA` pour le pays).
+- **Aucun jeu ouvert ne donne le WVAL d'un État** : la carte du CDC prend la médiane des stations. L'intégration la
+  recalcule (catégorie de la station du milieu ; en nombre pair, catégorie haute seulement si la médiane atteint la
+  plus petite valeur lue dans cette catégorie). Les seuils par virus changent selon les saisons : ne pas les coder en
+  dur.
+- `atcp-73re` écrit l'État **en toutes lettres** (« Vermont », « District of Columbia ») et `counties_served` en noms
+  séparés par des virgules, sans « County » ; le site `ID:1965` est le `1965` des jeux bruts (`j9g8-acpt`…), qui ont
+  aussi les FIPS mais sont trop lourds. Comté retrouvé par nom normalisé (`countyKey`).
+- En novembre 2026, le Dakota du Nord et l'Oklahoma n'ont **aucune station** publiée : appareils sans eaux usées.
+  `vdzy-6i9v` ne garde que ~29 semaines ; ILINet par État (`6svj-q4zv`) est figé depuis 2024 : écarté.
+- Les dates `week_end` / `weekendingdate` sont du **texte** `YYYY-MM-DD` : la comparaison `>=` de SoQL marche en
+  chaîne. Lecture des 28 derniers jours (semaine courante et précédente pour la tendance).
+- Taux pour 100 000 décimal : `unknown/unknown` (aucun couple décimal neutre dans Gladys) ; niveaux en `risk/integer`
+  1 à 5.
+- Logo du CDC : usage soumis à autorisation, la cover est un pictogramme maison.

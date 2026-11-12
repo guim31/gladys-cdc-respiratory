@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-cdc-respiratory",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "Flu, COVID-19 and RSV activity in your US state or county (CDC open data) for Gladys Assistant: wastewater and hospital levels, trends, triggers and widget.",
   "type": "module",
   "main": "index.js",
   "scripts": {

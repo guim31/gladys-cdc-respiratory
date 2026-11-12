@@ -1,0 +1,92 @@
+[
+  {
+    "jurisdiction": "ND",
+    "weekendingdate": "2026-10-17",
+    "totalconfc19newadmper100k": "0.51",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "0.51",
+    "totalconfflunewadmper100klevel": "Very Low",
+    "totalconfrsvnewadmper100k": "0.13",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "TX",
+    "weekendingdate": "2026-10-17",
+    "totalconfc19newadmper100k": "1.0",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "1.79",
+    "totalconfflunewadmper100klevel": "Low",
+    "totalconfrsvnewadmper100k": "0.28",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "ND",
+    "weekendingdate": "2026-10-31",
+    "totalconfc19newadmper100k": "0.77",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "1.29",
+    "totalconfflunewadmper100klevel": "Very Low",
+    "totalconfrsvnewadmper100k": "0.13",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "TX",
+    "weekendingdate": "2026-10-31",
+    "totalconfc19newadmper100k": "1.15",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "2.72",
+    "totalconfflunewadmper100klevel": "Low",
+    "totalconfrsvnewadmper100k": "0.34",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "VT",
+    "weekendingdate": "2026-10-31",
+    "totalconfc19newadmper100k": "1.7",
+    "totalconfc19newadmper100klevel": "Low",
+    "totalconfflunewadmper100k": "1.08",
+    "totalconfflunewadmper100klevel": "Very Low",
+    "totalconfrsvnewadmper100k": "0.0",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "ND",
+    "weekendingdate": "2026-10-24",
+    "totalconfc19newadmper100k": "0.0",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "1.03",
+    "totalconfflunewadmper100klevel": "Very Low",
+    "totalconfrsvnewadmper100k": "0.0",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "TX",
+    "weekendingdate": "2026-10-24",
+    "totalconfc19newadmper100k": "1.0",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "2.0",
+    "totalconfflunewadmper100klevel": "Low",
+    "totalconfrsvnewadmper100k": "0.32",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "VT",
+    "weekendingdate": "2026-10-24",
+    "totalconfc19newadmper100k": "1.08",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "0.77",
+    "totalconfflunewadmper100klevel": "Very Low",
+    "totalconfrsvnewadmper100k": "0.0",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  },
+  {
+    "jurisdiction": "VT",
+    "weekendingdate": "2026-10-17",
+    "totalconfc19newadmper100k": "1.39",
+    "totalconfc19newadmper100klevel": "Very Low",
+    "totalconfflunewadmper100k": "1.24",
+    "totalconfflunewadmper100klevel": "Very Low",
+    "totalconfrsvnewadmper100k": "0.15",
+    "totalconfrsvnewadmper100klevel": "Very Low"
+  }
+]
