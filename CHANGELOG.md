@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-12
+
 ### Added
 
 - One device per place followed (a US state, DC, Puerto Rico, or a county typed in the
@@ -22,4 +24,5 @@ the notes of the version's GitHub Release.
 - Optional data.cdc.gov application token.
 - Feature names and texts in English, French, German and Spanish.
 
-[Unreleased]: https://github.com/guim31/gladys-cdc-respiratory/commits/main
+[Unreleased]: https://github.com/guim31/gladys-cdc-respiratory/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-cdc-respiratory/releases/tag/v1.0.0
